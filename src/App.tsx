@@ -34,11 +34,8 @@ const App: React.FunctionComponent = () => {
       setRunning(true)
 
       console.log(`Telemetry has started with id ${telemetryId}`)
-
-      // setTimeout(() => {}, 1000)
     } catch (err) {
       console.error(err)
-      // TODO: API should return cleaner error codes. Developers should base response on status code and not on message content
       if (err.body.message.includes('telemetry active')) {
         onReplayStop(err.body.data.telemetryId)
         alert('There was already a telemetry active for this entity. We stopped it for you. Please try again.')
@@ -89,6 +86,7 @@ const App: React.FunctionComponent = () => {
       {loggedIn && (
         <>
           <input value={aircraftId} onChange={e => setAircraftId(e.target.value)} placeholder="Enter aircraftId" />
+          <br />
           {!pathToReplay && <UploadKmlFile onSelect={setPathToReplay} />}
           {pathToReplay && (
             <>

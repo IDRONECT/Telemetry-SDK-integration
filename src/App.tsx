@@ -12,6 +12,7 @@ const App: React.FunctionComponent = () => {
   const [telemetryId, setTelemetryId] = useState<string | null>()
   const [pointIndex, setPointIndex] = useState<number>(0)
   const [running, setRunning] = useState<boolean>(false)
+  const [aircraftId, setAircraftId] = useState<string>('')
 
   const sendPoint = (latitude: number, longitude: number, altitude: number): void => {
     if (!telemetryId) {
@@ -23,29 +24,10 @@ const App: React.FunctionComponent = () => {
     api.telemetryDataPost({ body: { telemetryId, point } })
   }
 
-  useInterval(() => {
-    if (!running) {
-      return
-    }
-
-    const pointToSend = pathToReplay?.geometry.coordinates[pointIndex]
-
-    if (!pointToSend) {
-      onReplayStop()
-      alert('No points to send anymore')
-      return
-    }
-
-    console.log(pointToSend, pointIndex)
-
-    sendPoint(pointToSend[1], pointToSend[0], pointToSend[2])
-    setPointIndex(prev => prev + 1)
-  }, 1000)
-
   const onReplayStart = async (): Promise<void> => {
     let response
     try {
-      response = await api.telemetryStartPost({ body: { aircraftId: 'bLMXEyxo6i8YWqzp7', trackerId: '' } })
+      response = await api.telemetryStartPost({ body: { aircraftId, trackerId: '' } })
       const telemetryId = response.data?.telemetryId
 
       setTelemetryId(telemetryId)
@@ -76,6 +58,25 @@ const App: React.FunctionComponent = () => {
     setTelemetryId(null)
   }
 
+  useInterval(() => {
+    if (!running) {
+      return
+    }
+
+    const pointToSend = pathToReplay?.geometry.coordinates[pointIndex]
+
+    if (!pointToSend) {
+      onReplayStop()
+      alert('No points to send anymore')
+      return
+    }
+
+    console.log(pointToSend, pointIndex)
+
+    sendPoint(pointToSend[1], pointToSend[0], pointToSend[2])
+    setPointIndex(prev => prev + 1)
+  }, 1000)
+
   return (
     <div>
       <ApiKeyForm loggedIn={loggedIn} setLoggedIn={setLoggedIn} />
@@ -87,6 +88,7 @@ const App: React.FunctionComponent = () => {
 
       {loggedIn && (
         <>
+          <input value={aircraftId} onChange={e => setAircraftId(e.target.value)} placeholder="Enter aircraftId" />
           {!pathToReplay && <UploadKmlFile onSelect={setPathToReplay} />}
           {pathToReplay && (
             <>

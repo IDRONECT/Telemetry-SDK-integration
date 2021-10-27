@@ -1,6 +1,6 @@
 # Telemetry SDK Integration
 
-This is a basic demo app to show how to easily integrate the IDRONECT Telemeyty SDK in your Javascript projects
+This is a basic demo app to show how to easily integrate the IDRONECT Telemetry SDK in your Javascript projects
 
 ## Run it locally
 

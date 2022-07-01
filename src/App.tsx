@@ -5,6 +5,7 @@ import { api } from './api/instantiateApi'
 import ApiKeyForm from './components/ApiKeyForm'
 import UploadKmlFile from './components/upload/UploadKmlFile'
 import useInterval from './hooks/useInterval'
+import defaultAircraftId from './aircraftId'
 
 const App: React.FunctionComponent = () => {
   const [loggedIn, setLoggedIn] = useState(false)
@@ -12,7 +13,8 @@ const App: React.FunctionComponent = () => {
   const [telemetryId, setTelemetryId] = useState<string | null>()
   const [pointIndex, setPointIndex] = useState<number>(0)
   const [running, setRunning] = useState<boolean>(false)
-  const [aircraftId, setAircraftId] = useState<string>('')
+  const [aircraftId, setAircraftId] = useState<string>(defaultAircraftId)
+  const [activeTelemetries, setActiveTelemetries] = useState<Array<any>>([])
 
   const sendPoint = (latitude: number, longitude: number, altitude: number): void => {
     if (!telemetryId) {
@@ -44,15 +46,23 @@ const App: React.FunctionComponent = () => {
     }
   }
 
-  const onReplayStop = async (telemtry = telemetryId) => {
-    if (!telemtry) {
+  const onReplayStop = async (telemetry = telemetryId) => {
+    if (!telemetry) {
       return
     }
 
-    await api.telemetryStopPost({ body: { telemetryId: telemtry } })
+    await api.telemetryStopPost({ body: { telemetryId: telemetry } })
     setRunning(false)
     setPointIndex(0)
     setTelemetryId(null)
+  }
+
+  const onListTelemetries = async () => {
+    const listResponse = await api.telemetryListGet({ body: { aircraftId } })
+    console.log(listResponse)
+    if (listResponse.data?.telemetries) {
+      setActiveTelemetries(listResponse.data?.telemetries)
+    }
   }
 
   useInterval(() => {
@@ -86,6 +96,13 @@ const App: React.FunctionComponent = () => {
       {loggedIn && (
         <>
           <input value={aircraftId} onChange={e => setAircraftId(e.target.value)} placeholder="Enter aircraftId" />
+          <button onClick={onListTelemetries}>List Telemetries</button>
+          {activeTelemetries.map(telemetry => (
+            <div key={telemetry.telemetryId}>
+              {JSON.stringify(telemetry)}
+              <button onClick={() => onReplayStop(telemetry.telemetryId)}>Stop</button>
+            </div>
+          ))}
           <br />
           {!pathToReplay && <UploadKmlFile onSelect={setPathToReplay} />}
           {pathToReplay && (

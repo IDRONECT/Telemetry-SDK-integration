@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { instantiateApi } from '../api/instantiateApi'
+import apiKey from '../apiKey'
 
 interface Props {
   loggedIn: boolean
@@ -7,7 +8,7 @@ interface Props {
 }
 
 const ApiKeyForm: React.FunctionComponent<Props> = ({ loggedIn, setLoggedIn }: Props) => {
-  const [state, setState] = useState('')
+  const [state, setState] = useState(apiKey)
 
   const onLogin = async () => {
     const success = await instantiateApi(state)

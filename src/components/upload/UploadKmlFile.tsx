@@ -51,10 +51,10 @@ const UploadKmlFile: React.FunctionComponent<Props> = ({ onSelect }: Props) => {
       {state.paths?.length ? (
         <ul>
           {state.paths.map(path => (
-            <>
+            <div key={path?.properties?.name} >
               <PathDetailsBlock key={uuidv4()} path={path} onSelect={onSelect} />
               <br />
-            </>
+            </div>
           ))}
         </ul>
       ) : (
